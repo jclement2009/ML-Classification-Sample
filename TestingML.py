@@ -9,14 +9,12 @@ Created on Tue Jul 11 11:35:13 2017
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import re
 import seaborn as sns
-import sys
-import scipy
 import sklearn
+import os
 
 # Main Imports
-from pandas.tools.plotting import scatter_matrix
+#from pandas.tools.plotting import scatter_matrix
 from sklearn import model_selection
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -30,7 +28,7 @@ from sklearn.svm import SVC
 
 
 #Getting the data from folder.  Will update this to be more flexible in the near future.  For now, we shall use this.
-mainrawdata = "/Users/Joseph/Sample-Data-Swiss-Bank-Notes.csv" 
+mainrawdata = os.path.abspath(os.path.join("Sample-Data-Swiss-Bank-Notes.csv")) 
 
 maindata = pd.read_csv(mainrawdata)
 
@@ -71,7 +69,7 @@ myList = list(range(1,50))
 cv_scores = []
 
 
-# subsetting just the odd ones
+# Determining optimal k neighbors for KNN
 neighbors = myList
 
 for k in neighbors:
@@ -82,7 +80,6 @@ for k in neighbors:
 # changing to misclassification error
 MSE = [1 - x for x in cv_scores]
 
-# determining best k
 optimal_k = neighbors[MSE.index(min(MSE))]
 print("The optimal number of neighbors is " + str(optimal_k))
 
@@ -100,7 +97,7 @@ models.append(('KNN', KNeighborsClassifier(n_neighbors=optimal_k)))
 models.append(('CART', DecisionTreeClassifier()))
 models.append(('NB', GaussianNB()))
 models.append(('SVM', SVC()))
-# evaluate each model in turn
+# Testing each model's accuracy
 results = []
 names = []
 for name, model in models:
@@ -111,7 +108,7 @@ for name, model in models:
 	msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
 	print(msg)
 
- # Compare Algorithms
+ # Comparing Algorithms
 fig = plt.figure()
 fig.suptitle('Algorithm Comparison')
 ax = fig.add_subplot(111)
@@ -120,10 +117,9 @@ ax.set_xticklabels(names)
 plt.show()
 
 
-# Testing KNN for optimal number of neighbors
 
 
-#More Stuff  
+#KNN Validation  
 knn = KNeighborsClassifier(n_neighbors=34)
 knn.fit(X_train, Y_train)
 predictions = knn.predict(X_validation)
@@ -135,12 +131,6 @@ print(classification_report(Y_validation, predictions))
 testarray= np.array([0, 0, 0, 0,  0, 0])
 print(knn.predict(testarray.reshape(1,-1)))
 
-svc = SVC()
-svc.fit(X_train, Y_train)
-predictions = svc.predict(X_validation)
-print(accuracy_score(Y_validation, predictions))
-print(confusion_matrix(Y_validation, predictions))
-print(classification_report(Y_validation, predictions))
-print(svc.predict(testarray.reshape(1,-1)))
+
 
 
